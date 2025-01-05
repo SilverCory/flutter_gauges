@@ -1,0 +1,35 @@
+name: flutter_gauges
+description: "ME221 OBDII Gauges"
+publish_to: 'none'
+
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.6.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  carousel_slider: 5.0.0
+  syncfusion_flutter_gauges: ^28.1.37
+  json_theme_plus: ^6.6.1
+  json_annotation: ^4.9.0
+  global_configuration: ^2.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  build_runner: ^2.4.0
+  json_serializable: ^6.0.1
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/appainter_theme.json
+  fonts:
+    - family: JetBrainsMono
+      fonts:
+        - asset: fonts/JetBrainsMono-VariableFont_wght.ttf
+        - asset: fonts/JetBrainsMono-Italic-VariableFont_wght.ttf
+          style: italic
