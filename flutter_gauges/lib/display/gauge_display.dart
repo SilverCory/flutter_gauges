@@ -4,6 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gauges/net/gauge_socket.dart';
 import 'package:flutter_gauges/domain/gauge_values.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../domain/gauge_type.dart';
 import 'gauges.dart';
@@ -11,16 +12,17 @@ import 'gauge_display_afr.dart';
 import 'gauge_display_boost.dart';
 
 class GaugeDisplay extends StatefulWidget {
-  late final String _socketPath;
+  late final String socketPath;
+  late final SharedPreferences prefs;
 
-  GaugeDisplay({super.key}) {
+  GaugeDisplay({super.key, required this.prefs}) {
     Directory appDirectory = Directory.systemTemp;
-    _socketPath = '${appDirectory.path}/flutter_gauges_backend.sock';
+    socketPath = '${appDirectory.path}/flutter_gauges_backend.sock';
   }
 
   @override
   State<StatefulWidget> createState() {
-    return _GaugeDisplayState(socketPath: _socketPath);
+    return _GaugeDisplayState();
   }
 }
 
@@ -33,13 +35,24 @@ class _GaugeDisplayState extends State<GaugeDisplay> {
 
   late GaugeSocket gaugeSocket;
 
-  _GaugeDisplayState({required socketPath}) {
-    gaugeSocket =
-        GaugeSocket(socketPath: socketPath, callback: updateValues);
-  }
+  DataType initialGauge = DataType.boostGauge;
+
+  _GaugeDisplayState() {}
 
   @override
   void initState() {
+    gaugeSocket =
+        GaugeSocket(socketPath: widget.socketPath, callback: updateValues);
+
+    String? initialGaugeStr = widget.prefs.getString("displayedGauge");
+    if (initialGaugeStr != null) {
+      try {
+        initialGauge = dataTypeFromString(initialGaugeStr);
+      } catch (e) {
+        // Ignored.
+      }
+    }
+
     intakePressureGaugeWidget = getIntakePressureGauge(gaugeValuesNotifier);
     afrGaugeWidget = getAFRGauge(gaugeValuesNotifier);
 
@@ -82,6 +95,7 @@ class _GaugeDisplayState extends State<GaugeDisplay> {
   Widget build(BuildContext context) {
     final double height = MediaQuery.of(context).size.height;
     final double width = MediaQuery.of(context).size.width;
+    dataTypeFromString(DataType.boostGauge.toString());
     return Container(
       width: width,
       height: height,
@@ -96,38 +110,39 @@ class _GaugeDisplayState extends State<GaugeDisplay> {
               viewportFraction: 1.0,
               enlargeCenterPage: false,
               animateToClosest: true,
-              initialPage: DataType.values.indexOf(DataType.afrGauge),
+              initialPage: DataType.values.indexOf(initialGauge),
               onPageChanged: (index, changeReason) => {
                 initialDisplayDisplayed(),
                 if (changeReason == CarouselPageChangedReason.manual)
                   {
-                    print(
-                        "Page changed to: ${DataType.values[index].toString()}")
-                    // TODO save index
+                    widget.prefs.setString(
+                        "displayedGauge", DataType.values[index].toString())
                   }
               },
             ),
-            items: DataType.values.toList().map((i) {
-              return Builder(
-                builder: (BuildContext context) {
-                  Widget render;
-                  switch (i) {
-                    case DataType.boostGauge:
-                      render = intakePressureGaugeWidget;
-                      break;
-                    case DataType.afrGauge:
-                      render = afrGaugeWidget;
-                      break;
-                  }
+            items: DataType.values.toList().map(
+              (i) {
+                return Builder(
+                  builder: (BuildContext context) {
+                    Widget render;
+                    switch (i) {
+                      case DataType.boostGauge:
+                        render = intakePressureGaugeWidget;
+                        break;
+                      case DataType.afrGauge:
+                        render = afrGaugeWidget;
+                        break;
+                    }
 
-                  return Container(
-                    width: MediaQuery.of(context).size.width,
-                    margin: EdgeInsets.symmetric(horizontal: 0.0),
-                    child: Material(child: render),
-                  );
-                },
-              );
-            }).toList(),
+                    return Container(
+                      width: MediaQuery.of(context).size.width,
+                      margin: EdgeInsets.symmetric(horizontal: 0.0),
+                      child: Material(child: render),
+                    );
+                  },
+                );
+              },
+            ).toList(),
           ),
           IgnorePointer(
             ignoring: true,
