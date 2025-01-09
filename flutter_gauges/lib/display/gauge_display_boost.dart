@@ -81,7 +81,10 @@ Widget _buildIntakePressureGauge(
         pointers: <GaugePointer>[boostPointer],
         annotations: <GaugeAnnotation>[
           GaugeAnnotation(
-            widget: Text("Boost", style: TextStyle(fontSize: 10)),
+            widget: Text(
+              "Boost",
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
             angle: 0,
             positionFactor: 0.7,
           ),
@@ -91,23 +94,32 @@ Widget _buildIntakePressureGauge(
                   .toStringAsFixed(1)
                   .padLeft(5)
                   .padRight(7),
-              style: TextStyle(fontSize: 25),
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
             angle: 90,
             positionFactor: 0,
           ),
           GaugeAnnotation(
-            widget: Text("Intake Pressure", style: TextStyle(fontSize: 15)),
+            widget: Text(
+              "Intake Pressure",
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             angle: 90,
             positionFactor: 0.4,
           ),
           GaugeAnnotation(
-            widget: Text("(lb/in²)", style: TextStyle(fontSize: 10)),
+            widget: Text(
+              "(lb/in²)",
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             angle: 90,
             positionFactor: 0.5,
           ),
           GaugeAnnotation(
-            widget: Text("Vacuum", style: TextStyle(fontSize: 10)),
+            widget: Text(
+              "Vacuum",
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
             angle: 180,
             positionFactor: 0.7,
           )

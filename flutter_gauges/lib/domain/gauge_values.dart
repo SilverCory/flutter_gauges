@@ -8,12 +8,18 @@ class GaugeValues {
   final double afrTarget;
   final double intakePressure;
   final bool knocked;
+  final bool twoStep;
+  final double waterTemperature;
+  final double oilPressure;
 
   GaugeValues({
     required this.afrValue,
     required this.afrTarget,
     required this.intakePressure,
     required this.knocked,
+    required this.twoStep,
+    required this.waterTemperature,
+    required this.oilPressure,
   });
 
   GaugeValues.zero({
@@ -21,6 +27,9 @@ class GaugeValues {
     this.afrTarget = 0,
     this.intakePressure = 0,
     this.knocked = false,
+    this.twoStep = false,
+    this.waterTemperature = 0,
+    this.oilPressure = 0,
   });
 
   factory GaugeValues.fromJson(Map<String, dynamic> json) =>

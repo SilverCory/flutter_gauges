@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_gauges/net/gauge_socket.dart';
 import 'package:flutter_gauges/domain/gauge_values.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:icons_flutter/icons_flutter.dart';
 
 import '../domain/gauge_type.dart';
 import 'gauges.dart';
@@ -57,7 +58,7 @@ class _GaugeDisplayState extends State<GaugeDisplay> {
     afrGaugeWidget = getAFRGauge(gaugeValuesNotifier);
 
     super.initState();
-    gaugeSocket.connectAndListen();
+    gaugeSocket.connectAndListen().ignore();
   }
 
   @override
@@ -69,6 +70,27 @@ class _GaugeDisplayState extends State<GaugeDisplay> {
 
   void updateValues(GaugeValues values) {
     gaugeValuesNotifier.value = values;
+  }
+
+  Icon _iconTempratureCalc(temp) {
+    if (temp < 50) {
+      return Icon(
+        FontAwesome.thermometer_empty,
+        color: Colors.blue,
+      );
+    }
+
+    if (temp > 120) {
+      return Icon(
+        FontAwesome.thermometer_full,
+        color: Colors.red,
+      );
+    }
+
+    return Icon(
+      FontAwesome.thermometer_half,
+      color: Colors.green.withOpacity(0.2),
+    );
   }
 
   Widget _buildAlertContainer(
@@ -87,7 +109,36 @@ class _GaugeDisplayState extends State<GaugeDisplay> {
               )
             : null,
       ),
-      child: Container(),
+      child: Center(
+        child: Padding(
+          padding: EdgeInsets.only(bottom: height / 3),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Icon(
+                    Foundation.foot,
+                    color: values.twoStep
+                        ? Colors.orange
+                        : Colors.grey.withOpacity(0.2),
+                  ),
+                  _iconTempratureCalc(values.waterTemperature),
+                  Icon(
+                    FontAwesome5Icon.oil_can,
+                    color: values.oilPressure < 100
+                        ? Colors.red
+                        : Colors.green.withOpacity(0.2),
+                  )
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 
@@ -102,56 +153,56 @@ class _GaugeDisplayState extends State<GaugeDisplay> {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
       ),
-      child: Stack(
-        children: [
-          CarouselSlider(
-            options: CarouselOptions(
-              height: height,
-              viewportFraction: 1.0,
-              enlargeCenterPage: false,
-              animateToClosest: true,
-              initialPage: DataType.values.indexOf(initialGauge),
-              onPageChanged: (index, changeReason) => {
-                initialDisplayDisplayed(),
-                if (changeReason == CarouselPageChangedReason.manual)
-                  {
-                    widget.prefs.setString(
-                        "displayedGauge", DataType.values[index].toString())
-                  }
-              },
-            ),
-            items: DataType.values.toList().map(
-              (i) {
-                return Builder(
-                  builder: (BuildContext context) {
-                    Widget render;
-                    switch (i) {
-                      case DataType.boostGauge:
-                        render = intakePressureGaugeWidget;
-                        break;
-                      case DataType.afrGauge:
-                        render = afrGaugeWidget;
-                        break;
-                    }
+      child: CarouselSlider(
+        options: CarouselOptions(
+          height: height,
+          viewportFraction: 1.0,
+          enlargeCenterPage: false,
+          animateToClosest: true,
+          initialPage: DataType.values.indexOf(initialGauge),
+          onPageChanged: (index, changeReason) => {
+            initialDisplayDisplayed(),
+            if (changeReason == CarouselPageChangedReason.manual)
+              {
+                widget.prefs.setString(
+                    "displayedGauge", DataType.values[index].toString())
+              }
+          },
+        ),
+        items: DataType.values.toList().map(
+          (i) {
+            return Builder(
+              builder: (BuildContext context) {
+                Widget render;
+                switch (i) {
+                  case DataType.boostGauge:
+                    render = intakePressureGaugeWidget;
+                    break;
+                  case DataType.afrGauge:
+                    render = afrGaugeWidget;
+                    break;
+                }
 
-                    return Container(
-                      width: MediaQuery.of(context).size.width,
-                      margin: EdgeInsets.symmetric(horizontal: 0.0),
-                      child: Material(child: render),
-                    );
-                  },
+                return Container(
+                  width: MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.symmetric(horizontal: 0.0),
+                  child: Stack(
+                    children: [
+                      Material(child: render),
+                      IgnorePointer(
+                        ignoring: true,
+                        child: ValueListenableBuilder<GaugeValues>(
+                          valueListenable: gaugeValuesNotifier,
+                          builder: _buildAlertContainer,
+                        ),
+                      ),
+                    ],
+                  ),
                 );
               },
-            ).toList(),
-          ),
-          IgnorePointer(
-            ignoring: true,
-            child: ValueListenableBuilder<GaugeValues>(
-              valueListenable: gaugeValuesNotifier,
-              builder: _buildAlertContainer,
-            ),
-          ),
-        ],
+            );
+          },
+        ).toList(),
       ),
     );
   }

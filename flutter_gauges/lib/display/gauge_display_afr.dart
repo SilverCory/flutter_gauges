@@ -68,31 +68,42 @@ Widget _buildAFRGauge(
         pointers: [afrTargetPointer, afrValuePointer],
         annotations: [
           GaugeAnnotation(
-            widget: Text("Lean", style: TextStyle(fontSize: 10)),
+            widget: Text(
+              "Lean",
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
             angle: 0,
             positionFactor: 0.7,
           ),
           GaugeAnnotation(
             widget: Text(
               gaugeValue.afrValue.toStringAsFixed(2).padLeft(5),
-              style: TextStyle(fontSize: 25),
+              style: Theme.of(context).textTheme.headlineSmall,
             ),
             angle: 90,
             positionFactor: 0,
           ),
           GaugeAnnotation(
-            widget: Text("AFR", style: TextStyle(fontSize: 15)),
+            widget: Text(
+              "AFR",
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
             angle: 90,
             positionFactor: 0.4,
           ),
           GaugeAnnotation(
-            widget:
-                Text("(Parts air to 1 Fuel)", style: TextStyle(fontSize: 10)),
+            widget: Text(
+              "(Air:1Fuel)",
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
             angle: 90,
             positionFactor: 0.5,
           ),
           GaugeAnnotation(
-            widget: Text("Rich", style: TextStyle(fontSize: 10)),
+            widget: Text(
+              "Rich",
+              style: Theme.of(context).textTheme.labelSmall,
+            ),
             angle: 180,
             positionFactor: 0.7,
           )
