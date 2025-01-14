@@ -1,114 +1,143 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_gauges/domain/gauge_values.dart';
+import 'package:flutter_gauges/domain/gauge_values_notifier.dart';
 import 'package:syncfusion_flutter_gauges/gauges.dart';
 
-import '../net/gauge_socket.dart';
-import 'gauges.dart';
+class GaugeDisplayAFR extends StatefulWidget {
+  final GaugeValuesNotifiers notifiers;
 
-Widget getAFRGauge(ValueNotifier<GaugeValues> gaugeValueNotifier) {
-  return ValueListenableBuilder<GaugeValues>(
-      valueListenable: gaugeValueNotifier, builder: _buildAFRGauge);
+  const GaugeDisplayAFR({super.key, required this.notifiers});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _GaugeDisplayAFRState();
+  }
 }
 
-Widget _buildAFRGauge(
-    BuildContext context, GaugeValues gaugeValue, Widget? child) {
-  var afrValuePointer = MarkerPointer(
-    animationDuration: expectedMessageRateMillis,
-    animationType: AnimationType.linear,
-    enableAnimation: true,
-    value: gaugeValue.afrValue,
-    markerType: MarkerType.triangle,
-    markerOffset: 5,
-    markerWidth: 15,
-    markerHeight: 20,
-    color: Colors.white,
-  );
+class _GaugeDisplayAFRState extends State<GaugeDisplayAFR> {
+  double _afrValue = 0;
+  double _afrTarget = 0;
 
-  var afrTargetPointer = MarkerPointer(
-    animationDuration: expectedMessageRateMillis,
-    animationType: AnimationType.linear,
-    enableAnimation: true,
-    value: gaugeValue.afrTarget,
-    markerType: MarkerType.triangle,
-    markerOffset: 5,
-    markerWidth: 15,
-    markerHeight: 20,
-    color: Colors.blueGrey,
-  );
+  void _updateAFRValue() {
+    setState(() {
+      _afrValue = widget.notifiers.afrValue.value;
+    });
+  }
 
-  return SfRadialGauge(
-    enableLoadingAnimation: isInitialDisplay(),
-    animationDuration: 4000,
-    axes: <RadialAxis>[
-      RadialAxis(
-        useRangeColorForAxis: true,
-        startAngle: 130,
-        endAngle: 50,
-        minimum: 7,
-        maximum: 21,
-        ranges: <GaugeRange>[
-          GaugeRange(
-            startValue: 7,
-            endValue: 21,
-            gradient: SweepGradient(stops: [
-              0.15,
-              0.20,
-              0.50,
-              0.80,
-              0.85,
-            ], colors: [
-              Colors.red,
-              Colors.orange,
-              Colors.green,
-              Colors.orange,
-              Colors.red
-            ]),
-          ),
-        ],
-        pointers: [afrTargetPointer, afrValuePointer],
-        annotations: [
-          GaugeAnnotation(
-            widget: Text(
-              "Lean",
-              style: Theme.of(context).textTheme.labelSmall,
+  void _updateAFRTarget() {
+    setState(() {
+      _afrTarget = widget.notifiers.afrTarget.value;
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.notifiers.afrValue.addListener(_updateAFRValue);
+    widget.notifiers.afrTarget.addListener(_updateAFRTarget);
+  }
+
+  @override
+  void dispose() {
+    widget.notifiers.afrValue.removeListener(_updateAFRValue);
+    widget.notifiers.afrTarget.removeListener(_updateAFRTarget);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SfRadialGauge(
+      enableLoadingAnimation: false,
+      axes: <RadialAxis>[
+        RadialAxis(
+          useRangeColorForAxis: true,
+          startAngle: 130,
+          endAngle: 50,
+          minimum: 7,
+          maximum: 21,
+          ranges: <GaugeRange>[
+            GaugeRange(
+              startValue: 7,
+              endValue: 21,
+              gradient: SweepGradient(stops: [
+                0.15,
+                0.20,
+                0.50,
+                0.80,
+                0.85,
+              ], colors: [
+                Colors.red,
+                Colors.orange,
+                Colors.green,
+                Colors.orange,
+                Colors.red
+              ]),
             ),
-            angle: 0,
-            positionFactor: 0.7,
-          ),
-          GaugeAnnotation(
-            widget: Text(
-              gaugeValue.afrValue.toStringAsFixed(2).padLeft(5),
-              style: Theme.of(context).textTheme.headlineSmall,
+          ],
+          pointers: [
+            MarkerPointer(
+              enableAnimation: false,
+              value: _afrTarget,
+              markerType: MarkerType.triangle,
+              markerOffset: 5,
+              markerWidth: 15,
+              markerHeight: 20,
+              color: Colors.blueGrey,
             ),
-            angle: 90,
-            positionFactor: 0,
-          ),
-          GaugeAnnotation(
-            widget: Text(
-              "AFR",
-              style: Theme.of(context).textTheme.bodyMedium,
+            MarkerPointer(
+              enableAnimation: false,
+              value: _afrValue,
+              markerType: MarkerType.triangle,
+              markerOffset: 5,
+              markerWidth: 15,
+              markerHeight: 20,
+              color: Colors.white,
             ),
-            angle: 90,
-            positionFactor: 0.4,
-          ),
-          GaugeAnnotation(
-            widget: Text(
-              "(Air:1Fuel)",
-              style: Theme.of(context).textTheme.bodySmall,
+          ],
+          annotations: [
+            GaugeAnnotation(
+              widget: Text(
+                "Lean",
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+              angle: 0,
+              positionFactor: 0.7,
             ),
-            angle: 90,
-            positionFactor: 0.5,
-          ),
-          GaugeAnnotation(
-            widget: Text(
-              "Rich",
-              style: Theme.of(context).textTheme.labelSmall,
+            GaugeAnnotation(
+              widget: Text(
+                _afrValue.toStringAsFixed(2).padLeft(5),
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              angle: 90,
+              positionFactor: 0,
             ),
-            angle: 180,
-            positionFactor: 0.7,
-          )
-        ],
-      ),
-    ],
-  );
+            GaugeAnnotation(
+              widget: Text(
+                "AFR",
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+              angle: 90,
+              positionFactor: 0.4,
+            ),
+            GaugeAnnotation(
+              widget: Text(
+                "(Air:1Fuel)",
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              angle: 90,
+              positionFactor: 0.5,
+            ),
+            GaugeAnnotation(
+              widget: Text(
+                "Rich",
+                style: Theme.of(context).textTheme.labelSmall,
+              ),
+              angle: 180,
+              positionFactor: 0.7,
+            )
+          ],
+        ),
+      ],
+    );
+  }
 }

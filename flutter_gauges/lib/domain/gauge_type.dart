@@ -1,6 +1,6 @@
 enum DataType {
-  boostGauge,
-  afrGauge,
+  boostGauge(),
+  afrGauge(),
 }
 
 DataType dataTypeFromString(String input) {

@@ -4,7 +4,7 @@ import 'dart:io';
 
 import 'package:flutter_gauges/domain/gauge_values.dart';
 
-const double expectedMessageRateMillis = 100;
+const double expectedMessageRateMillis = 33;
 
 class GaugeSocket {
   late final InternetAddress host;
@@ -41,6 +41,7 @@ class GaugeSocket {
 
   void _setupSocketListeners() {
     print("Connected! Setting up listeners");
+    GaugeValues values = GaugeValues.zero();
     socket!
         .cast<List<int>>()
         .transform(utf8.decoder)
@@ -48,9 +49,8 @@ class GaugeSocket {
         .listen(
       (line) {
         try {
-          final GaugeValues jsonData =
-              GaugeValues.fromJson(jsonDecode(line) as Map<String, dynamic>);
-          callback(jsonData);
+          values.fromJson(jsonDecode(line) as Map<String, dynamic>);
+          callback(values);
         } catch (e) {
           print('Failed to parse JSON: $e');
         }

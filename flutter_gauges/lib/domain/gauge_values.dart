@@ -2,15 +2,15 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'gauge_values.g.dart';
 
-@JsonSerializable()
+@JsonSerializable(createToJson: false, createFactory: true)
 class GaugeValues {
-  final double afrValue;
-  final double afrTarget;
-  final double intakePressure;
-  final bool knocked;
-  final bool twoStep;
-  final double waterTemperature;
-  final double oilPressure;
+  double afrValue;
+  double afrTarget;
+  double intakePressure;
+  bool knocked;
+  bool twoStep;
+  double waterTemperature;
+  double oilPressure;
 
   GaugeValues({
     required this.afrValue,
@@ -32,8 +32,16 @@ class GaugeValues {
     this.oilPressure = 0,
   });
 
+  void fromJson(Map<String, dynamic> json) {
+    afrValue = (json['afrValue'] as num).toDouble();
+    afrTarget = (json['afrTarget'] as num).toDouble();
+    intakePressure = (json['intakePressure'] as num).toDouble();
+    knocked = json['knocked'] as bool;
+    twoStep = json['twoStep'] as bool;
+    waterTemperature = (json['waterTemperature'] as num).toDouble();
+    oilPressure = (json['oilPressure'] as num).toDouble();
+  }
+
   factory GaugeValues.fromJson(Map<String, dynamic> json) =>
       _$GaugeValuesFromJson(json);
-
-  Map<String, dynamic> toJson() => _$GaugeValuesToJson(this);
 }

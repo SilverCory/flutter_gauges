@@ -15,14 +15,3 @@ GaugeValues _$GaugeValuesFromJson(Map<String, dynamic> json) => GaugeValues(
       waterTemperature: (json['waterTemperature'] as num).toDouble(),
       oilPressure: (json['oilPressure'] as num).toDouble(),
     );
-
-Map<String, dynamic> _$GaugeValuesToJson(GaugeValues instance) =>
-    <String, dynamic>{
-      'afrValue': instance.afrValue,
-      'afrTarget': instance.afrTarget,
-      'intakePressure': instance.intakePressure,
-      'knocked': instance.knocked,
-      'twoStep': instance.twoStep,
-      'waterTemperature': instance.waterTemperature,
-      'oilPressure': instance.oilPressure,
-    };

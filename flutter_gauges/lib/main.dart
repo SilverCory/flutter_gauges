@@ -15,28 +15,11 @@ Future<void> main() async {
 
   SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  runApp(MyApp(theme: theme, prefs: prefs));
-}
-
-class MyApp extends StatelessWidget {
-  final ThemeData theme;
-  final SharedPreferences prefs;
-
-  const MyApp({
-    super.key,
-    required this.theme,
-    required this.prefs,
-  });
-
-  // This widget is the root of your application.
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Gauges',
-      theme: theme,
-      home: SharedAppData(
-        child: GaugeDisplay(prefs: prefs),
-      ),
-    );
-  }
+  runApp(MaterialApp(
+    title: 'Flutter Gauges',
+    theme: theme,
+    home: SharedAppData(
+      child: GaugeDisplay(prefs: prefs),
+    ),
+  ));
 }

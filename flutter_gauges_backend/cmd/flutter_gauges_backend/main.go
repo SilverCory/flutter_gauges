@@ -11,6 +11,7 @@ import (
 func main() {
 
 	var socketPath = "/Users/cory.redmond/Library/Containers/red.cory.flutterGauges/Data/tmp/flutter_gauges_backend.sock"
+	//var socketPath = "/tmp/flutter_gauges_backend.sock"
 
 	// Remove the socket if it already exists
 	if _, err := os.Stat(socketPath); err == nil {
